@@ -3,8 +3,19 @@ CREATE DATABASE chat;
 USE chat;
 
 CREATE TABLE messages (
+  
+  userName VARCHAR(100),
+  message VARCHAR(100),
+  roomName VARCHAR(100)
   /* Describe your table here.*/
 );
+CREATE TABLE users (
+  
+  userName VARCHAR(100)
+  /* Describe your table here.*/
+);
+
+
 
 /* Create other tables and define schemas for them here! */
 
