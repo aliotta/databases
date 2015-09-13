@@ -7,46 +7,45 @@ myQuery = 'SHOW COLUMNS FROM messages';
 var sequelize = db.sequelize;
 var seqUsers = db.users;
 var seqMessages = db.messages;
+//console.log("sequelize " , seqMessages)
 
 module.exports = {
   messages: {
     get: function (req, res) {
-      var query = 'SELECT * FROM messages';
-      dbConnection.query(query, function(err, rows, fields){
-        if(err){
-          console.log("ERROR GETTING MESSAGE", err)
-        } else {
-          var returnArray = []
-          var returnData;
-          for (var i = 0; i < rows.length; i++) {
-            returnData = {};
-            returnData.text = rows[i].message;
-            returnData.roomname =rows[i].roomName;
-            returnArray.push(returnData);
-          };
-          returnArray = JSON.stringify(returnArray)
-          res.send(returnArray);
-        }
-        
+
+
+
+      seqMessages.findAll().then(function(msgs){
+        //console.log("FOUND EM ALL ", msgs)
+        var returnArray = []
+        var returnData;
+        for (var i = 0; i < msgs.length; i++) {
+          returnData = {};
+          returnData.text = msgs[i].message;
+          returnData.roomname =msgs[i].roomName;
+          returnArray.push(returnData);
+        };
+        returnArray = JSON.stringify(returnArray)
+        console.log("Over here !!!!", returnArray)
+        res.send(returnArray);
       })
-      dbConnection.end();
 
     }, // a function which produces all the messages
     post: function (username, message, roomname, res) {
-      console.log(username)
-      var query = 'INSERT INTO messages (userName, message, roomName) VALUES ("' + username + '","' + message + '","' + roomname + '")';
-      dbConnection.query(query,
-        function selectCb(err) {
-          if (err){ 
-            console.log("ERROR INSERT MESSAGES ", err)
-            throw err;
-          }
-          else {
-            console.log("MESSAGE ADDED TO DB")
-            res.send("Hello?");
-          };
+      //console.log(username)
+
+      
+      seqMessages.sync().then(function() {
+        /* This callback function is called once sync succeeds. */
+        //console.log("HERE", username)
+        // now instantiate an object and save it:
+        
+        var newUser = seqMessages.build({userName: username, message: message, roomName:roomname});
+        newUser.save().then(function() {
+          console.log("posting message here")
+          res.end();
+        });
       });
-      dbConnection.end();
 
     } // a function which can be used to insert a message into the database
   },
@@ -56,23 +55,17 @@ module.exports = {
     get: function () {},
     post: function (username, res) {
       //var post  = {title : "test", artist:"test2"};
+      //console.log(sequelize);
+      seqUsers.sync().then(function() {
+        /* This callback function is called once sync succeeds. */
 
-      dbConnection.query('INSERT INTO users (userName) VALUES ("' + username +'")',
-        function selectCb(err) {
-          if (err){
-            console.log("ERROR In INSERT USERS ", err)
-            throw err;
-          }
-          else {
-            console.log("USER added to database", res)
-            res.end();
-          };
+        // now instantiate an object and save it:
+        var newUser = seqUsers.build({userName: username});
+        newUser.save().then(function() {
+          console.log("SAVING ")
+          res.end();
+        });
       });
-      //dbConnection.end();
-
-      
-      
     }
   }
 };
-

@@ -12,13 +12,21 @@ module.exports.dbConnection = mysql.createConnection({
 
 var Sequelize = require('sequelize');
 var sequelize = new Sequelize('chat', 'root', 'test');
-
-var messages = sequelize.define('messages', {
+module.exports.sequelize = sequelize;
+module.exports.messages = sequelize.define('messages', {
+  id: {type: Sequelize.INTEGER(11), primaryKey: true, autoIncrement: true},
   userName: Sequelize.STRING,
   roomName: Sequelize.STRING,
   message: Sequelize.STRING
+}, 
+{
+    timestamps: false
 }); 
-var users = sequelize.define('users', {
+module.exports.users = sequelize.define('users', {
+  //id: Sequelize.STRING,
   userName: Sequelize.STRING
+},
+{
+    timestamps: false
 });
 
